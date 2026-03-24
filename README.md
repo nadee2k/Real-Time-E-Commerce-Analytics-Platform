@@ -1,15 +1,15 @@
 # Real-Time E-Commerce Analytics Platform
 
-A Linux-friendly, portfolio-grade data platform showing end-to-end analytics engineering:
+**Real-time e-commerce analytics pipeline**, built for visibility from event ingress to KPI dashboards.
 
-- **Streaming ingestion** with Kafka
-- **Real-time transformation** with Spark Structured Streaming
-- **Lakehouse layers** (Bronze/Silver/Gold) on local filesystem (S3-compatible design)
-- **Warehouse serving** in PostgreSQL with star schema
-- **Data quality checks** via a lightweight GE-style validator job
-- **Orchestration** via Airflow DAGs
-- **BI & monitoring** with Superset + Grafana
-- **API serving** with FastAPI
+- 🚀 Streaming ingestion: Kafka event bus
+- 🔄 Transformation: Spark Structured Streaming
+- 🏭 Lakehouse layers: Bronze / Silver / Gold
+- 🧩 Warehouse: PostgreSQL star schema
+- 🧪 Quality: validator + data checks
+- ⚙️ Orchestration: Airflow DAG
+- 📊 Monitoring: Superset + Grafana
+- 🌐 API: FastAPI endpoint package
 
 ## Architecture
 
@@ -25,19 +25,19 @@ User Events -> Kafka -> Spark Streaming -> Bronze/Silver/Gold -> PostgreSQL Ware
 
 ## Repository Layout
 
-- `docker-compose.yml`: local stack bootstrapping
-- `streaming/producer.py`: event simulator for clicks/carts/purchases
-- `spark/stream_processor.py`: stream processing + KPI aggregation
-- `warehouse/sql/star_schema.sql`: dimensions/facts + KPI mart table
-- `jobs/load_gold_to_warehouse.py`: load Gold aggregates into PostgreSQL
-- `quality/validate_gold.py`: data quality checks for Gold layer
-- `airflow/dags/ecommerce_pipeline.py`: orchestrated daily/batch flow
-- `api/main.py`: analytics API endpoints
-- `tests/test_api_contract.py`: API contract tests
+- `docker-compose.yml` — local stack bootstrap
+- `streaming/producer.py` — event simulator (clicks / carts / purchases)
+- `spark/stream_processor.py` — structured stream transformation + KPI aggregation
+- `warehouse/sql/star_schema.sql` — star-schema model for dimensions + facts
+- `jobs/load_gold_to_warehouse.py` — Gold layer load into Postgres
+- `quality/validate_gold.py` — quality checks for Gold layer processing
+- `airflow/dags/ecommerce_pipeline.py` — DAG-driven workflow orchestration
+- `api/main.py` — FastAPI analytics endpoints
+- `tests/test_api_contract.py` — API contract tests
 
 ## Quickstart
 
-1. Start services:
+1. Start the stack:
    ```bash
    docker compose up -d
    ```
@@ -45,31 +45,43 @@ User Events -> Kafka -> Spark Streaming -> Bronze/Silver/Gold -> PostgreSQL Ware
    ```bash
    docker compose exec -T postgres psql -U analytics -d ecommerce -f /workspace/warehouse/sql/star_schema.sql
    ```
-3. Start event producer:
+3. Start the event generator:
    ```bash
    python streaming/producer.py
    ```
-4. Run streaming processor (from Spark container or local Spark runtime):
+4. Start streaming ETL:
    ```bash
    python spark/stream_processor.py
    ```
-5. Load Gold data to warehouse:
+5. Push Gold aggregates to warehouse:
    ```bash
    python jobs/load_gold_to_warehouse.py
    ```
-6. Run API:
+6. Start API server:
    ```bash
    uvicorn api.main:app --reload --port 8000
    ```
+7. Open dashboards
+   - Grafana (port from `docker-compose`)
+   - Superset (port from `docker-compose`)
 
 ## Key KPIs
 
 - Active users (5-min rolling window)
 - Orders count and conversion rate
 - Revenue and average order value
-- Trending products by event count
+- Top product trends by event count
 
-## Notes
+## Best Practices
 
-- This repo is designed to be **cloud-portable**: swap local lake paths for S3 and PostgreSQL for cloud warehouse.
-- The producer supports deterministic generation with configurable rates and product/user pools.
+- Keep raw events in Bronze, cleaned metrics in Silver, business aggregates in Gold
+- Use `quality/validate_gold.py` as part of pipeline validation
+- Keep local paths in Spark config to simplify cloud substitution
+
+## Next Enhancements
+
+- Cloud storage support (S3 / MinIO)
+- Managed warehouse sink (Amazon Redshift / BigQuery)
+- Alerting (Prometheus + Grafana)
+- CI for data quality and contract tests
+- Authentication and multi-tenant analytics API

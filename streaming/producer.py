@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import random
 import time
@@ -35,22 +36,32 @@ def build_event(users: int, products: int) -> dict:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     topic = os.getenv("KAFKA_TOPIC", "user_activity")
     bootstrap = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")
     interval_ms = int(os.getenv("EVENT_INTERVAL_MS", "500"))
     users = int(os.getenv("USERS", "500"))
     products = int(os.getenv("PRODUCTS", "250"))
 
-    producer = KafkaProducer(
-        bootstrap_servers=bootstrap,
-        value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-    )
+    try:
+        producer = KafkaProducer(
+            bootstrap_servers=bootstrap,
+            value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+        )
+    except Exception as e:
+        logger.error(f"Failed to create Kafka producer: {e}")
+        return
 
-    print(f"Producing events to {topic} on {bootstrap} every {interval_ms}ms")
+    logger.info(f"Producing events to {topic} on {bootstrap} every {interval_ms}ms")
     while True:
         event = build_event(users=users, products=products)
-        producer.send(topic, event)
-        producer.flush()
+        try:
+            producer.send(topic, event)
+            producer.flush()
+        except Exception as e:
+            logger.error(f"Failed to send event: {e}")
         time.sleep(interval_ms / 1000)
 
 

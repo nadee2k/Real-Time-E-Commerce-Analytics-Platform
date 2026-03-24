@@ -1,4 +1,41 @@
+# Python artifacts
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .pytest_cache/
+.mypy_cache/
+.coverage*
+htmlcov/
+
+# Virtual environments
 .venv/
+env/
+venv/
+
+# Environment variables
+.env
+*.env
+
+# IDE/editor metadata
+.idea/
+.vscode/
+*.swp
+
+# Logs and local files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# OS generated files
+Thumbs.db
+
+# Generated data/warehouse output (pipeline artifacts)
+/data/*
+!/data/.gitkeep
+
+# Build files
+build/
+dist/
+*.egg-info/
